@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class PickupSequenceManager : MonoBehaviour
 {
+
+    public Material placementActiveMaterial;
+    public Material placementInactiveMaterial;
+
     [Serializable]
     public class Step
     {
@@ -20,7 +24,6 @@ public class PickupSequenceManager : MonoBehaviour
 
     private void Start()
     {
-        // Bind each placement area to this manager + its index.
         for (int i = 0; i < steps.Length; i++)
         {
             if (steps[i].placementArea != null)
@@ -47,12 +50,10 @@ public class PickupSequenceManager : MonoBehaviour
         ApplyActiveState();
     }
 
-    // Called by PlacementArea when a correct placement is detected.
     public void CompleteStep(int stepIndex)
     {
         if (stepIndex != _currentIndex) return;
 
-        // Disable the placed object and its placement area.
         Step s = steps[_currentIndex];
 
         if (s.pickupObject != null)
@@ -61,29 +62,33 @@ public class PickupSequenceManager : MonoBehaviour
         if (s.placementArea != null)
             s.placementArea.gameObject.SetActive(false);
 
-        // Advance
         _currentIndex++;
 
         ApplyActiveState();
     }
 
-    private void ApplyActiveState()
+private void ApplyActiveState()
+{
+    for (int i = 0; i < steps.Length; i++)
     {
-        for (int i = 0; i < steps.Length; i++)
+        bool isCurrent = (i == _currentIndex);
+
+        if (steps[i].pickupObject != null)
+            steps[i].pickupObject.SetActive(isCurrent);
+
+        if (steps[i].placementArea != null)
         {
-            bool isCurrent = (i == _currentIndex);
+            GameObject areaObject = steps[i].placementArea.gameObject;
+            areaObject.SetActive(isCurrent);
 
-            if (steps[i].pickupObject != null)
-                steps[i].pickupObject.SetActive(isCurrent);
-
-            if (steps[i].placementArea != null)
-                steps[i].placementArea.gameObject.SetActive(isCurrent);
-        }
-
-        // If finished, everything stays off.
-        if (_currentIndex >= steps.Length)
-        {
-            // Sequence complete. Nothing else needed for Devlog 2.
+            Renderer r = areaObject.GetComponent<Renderer>();
+            if (r != null)
+            {
+                r.material = isCurrent
+                    ? placementActiveMaterial
+                    : placementInactiveMaterial;
+            }
         }
     }
+}
 }

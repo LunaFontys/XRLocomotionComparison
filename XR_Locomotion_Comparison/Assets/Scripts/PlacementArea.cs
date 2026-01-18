@@ -9,7 +9,6 @@ public class PlacementArea : MonoBehaviour
 
     private void Reset()
     {
-        // Ensure the collider is a trigger (required for placement detection).
         Collider c = GetComponent<Collider>();
         c.isTrigger = true;
     }
@@ -19,7 +18,6 @@ public class PlacementArea : MonoBehaviour
         _manager = manager;
         _stepIndex = stepIndex;
 
-        // Enforce trigger collider
         Collider c = GetComponent<Collider>();
         c.isTrigger = true;
     }
@@ -35,11 +33,9 @@ public class PlacementArea : MonoBehaviour
         GameObject expectedObj = steps[_stepIndex].pickupObject;
         if (expectedObj == null) return;
 
-        // Must be the expected object (or a child collider of it).
         if (other.gameObject != expectedObj && !other.transform.IsChildOf(expectedObj.transform))
             return;
 
-        // Only count placement if it is NOT currently held.
         UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable grab = expectedObj.GetComponent<UnityEngine.XR.Interaction.Toolkit.Interactables.XRGrabInteractable>();
         if (grab != null && grab.isSelected)
             return;
